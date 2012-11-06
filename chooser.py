@@ -51,7 +51,7 @@ def select_entry(names, header_text=''):
     return type: string
     """
     class SelText(urwid.Text):
-        """Selectable Text"""
+        """Selectable Text, saving index"""
         def __init__(self, text):
             urwid.Text.__init__(self, text)
 
@@ -103,7 +103,7 @@ def select_entry(names, header_text=''):
     try:
         loop.run()
     except Selected:
-        return names[listbox.get_focus()[1]]
+        return listbox.get_focus()[1]
 
 
 def do_it():
@@ -126,6 +126,7 @@ def do_it():
 
     # main work is done here
     auswahl = auswahl.split('\n')[:-1]  # last line is always empty
+    orig_auswahl = auswahl
     auswahl = [one.split('\t') for one in auswahl]
     laengen = get_lengths(auswahl)
     number_columns = len(laengen)
@@ -146,8 +147,8 @@ def do_it():
     auswahl = [[s[:lange].ljust(lange + 1) for s, lange in zip(wahl, laengen)] for wahl in auswahl]
 
     auswahl = [''.join(elemente) for elemente in auswahl]
-    auswahl = select_entry(auswahl,
-                           header_text='Who do You want to call today?')
+    index = select_entry(auswahl,
+                         header_text='Who do You want to call today?')
 
     #restore old stdout
     sys.stdout.flush()
@@ -159,7 +160,7 @@ def do_it():
     sys.__stdin__ = sys.stdin = old_in
     sys.__stderr__ = sys.stderr = old_err
     # print chosen string
-    print(auswahl)
+    print(orig_auswahl[index])
 
 
 do_it()
