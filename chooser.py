@@ -83,11 +83,27 @@ def select_entry(names):
     except Selected:
         return names[listbox.get_focus()[1]]
 
-
+##################################################
 auswahl = sys.stdin.read()
 auswahl = auswahl.split('\n')
-sys.__stdin__.close()
+
+
+# save old stdout and in
+old_out = sys.__stdout__
+old_in = sys.__stdin__
+
+sys.__stdout__ = sys.stdout = open('/dev/tty', 'wb')
 sys.__stdin__ = sys.stdin = open('/dev/tty')
 os.dup2(sys.stdin.fileno(), 0)
+
+# main work is done here
 wahl = select_entry(auswahl)
-sys.stderr.write(wahl + '\n')
+
+#restore old stdout
+sys.stdin.close()
+sys.stdout.close()
+sys.__stdout__ = sys.stdout = old_out
+sys.__stdin__ = sys.stdin = old_in
+
+# print chosen string
+print(wahl + '\n')
