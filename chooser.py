@@ -124,7 +124,7 @@ def do_it():
         return map(max, zip(*[map(len, one) for one in auswahl]))
 
     # main work is done here
-    auswahl = auswahl.split('\n')[:-1] # last line is always empty
+    auswahl = auswahl.split('\n')[:-1]  # last line is always empty
     auswahl = [one.split('\t') for one in auswahl]
     laengen = get_lengths(auswahl)
     number_columns = len(laengen)
