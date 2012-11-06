@@ -114,6 +114,7 @@ def do_it():
     # save old stdout and in
     old_out = sys.__stdout__
     old_in = sys.__stdin__
+    old_err = sys.__stderr__
 
     sys.__stdout__ = sys.stdout = open('/dev/tty', 'wb')
     sys.__stdin__ = sys.stdin = open('/dev/tty')
@@ -149,11 +150,14 @@ def do_it():
                            header_text='Who do You want to call today?')
 
     #restore old stdout
+    sys.stdout.flush()
+    sys.stderr.flush()
     sys.stdin.close()
     sys.stdout.close()
+    sys.stderr.close()
     sys.__stdout__ = sys.stdout = old_out
     sys.__stdin__ = sys.stdin = old_in
-
+    sys.__stderr__ = sys.stderr = old_err
     # print chosen string
     print(auswahl)
 
