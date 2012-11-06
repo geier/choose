@@ -128,6 +128,13 @@ def do_it():
     auswahl = auswahl.split('\n')[:-1]  # last line is always empty
     orig_auswahl = auswahl
     auswahl = [one.split('\t') for one in auswahl]
+
+    #make sure all have elements have the same number of elements
+    number_elements = max([len(one) for one in auswahl])
+    for ind, _ in enumerate(auswahl):
+        while len(auswahl[ind]) < number_elements:
+            auswahl[ind].append('')
+
     laengen = get_lengths(auswahl)
     number_columns = len(laengen)
     number_splits = number_columns - 1
