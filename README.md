@@ -1,5 +1,5 @@
-choose - a simple chooser
-=========================
+choose - make choices on the command line
+=========================================
 
 reads lines from stdin, lets user choose one line in an urwid (ncurses like)
 interface, then prints that line to stdout and exits. Input will be aligned to
