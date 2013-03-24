@@ -169,15 +169,16 @@ def do_it(auswahl):
 
 
 if __name__=="__main__":
+    auswahl = sys.stdin.read()
+
     # save old stdout and in
     old_out = sys.__stdout__
     old_in = sys.__stdin__
     old_err = sys.__stderr__
-    sys.__stdout__ = sys.stdout = open('/dev/tty', 'wb')
+    sys.__stdout__ = sys.stdout = open('/dev/tty', 'w')
     sys.__stdin__ = sys.stdin = open('/dev/tty')
     os.dup2(sys.stdin.fileno(), 0)
 
-    auswahl = sys.stdin.read()
     do_it(auswahl)
 
     #restore old stdout
