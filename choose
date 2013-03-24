@@ -121,10 +121,9 @@ def select_entry(names, header_text=''):
         return listbox.get_focus()[1]
 
 
-def do_it():
+def do_it(auswahl):
     width, _ = get_terminal_size_wrapper()
 
-    auswahl = sys.stdin.read()
 
 
     def get_lengths(auswahl):
@@ -159,11 +158,27 @@ def do_it():
                 break
 
     # set length of column[i] to length[i], either clip or extent
-    auswahl = [[s[:lange].ljust(lange + 1) for s, lange in zip(wahl, laengen)] for wahl in auswahl]
+    auswahl = [[s[:lange].ljust(lange + 1) for s, lange in list(zip(wahl, laengen))] for wahl in auswahl]
 
-    auswahl = [''.join(elemente) for elemente in auswahl]
+    auswahl = [u''.join(elemente) for elemente in auswahl]
     index = select_entry(auswahl,
                          header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
+
+    # print chosen string
+    print(orig_auswahl[index])
+
+
+if __name__=="__main__":
+    # save old stdout and in
+    old_out = sys.__stdout__
+    old_in = sys.__stdin__
+    old_err = sys.__stderr__
+    sys.__stdout__ = sys.stdout = open('/dev/tty', 'wb')
+    sys.__stdin__ = sys.stdin = open('/dev/tty')
+    os.dup2(sys.stdin.fileno(), 0)
+
+    auswahl = sys.stdin.read()
+    do_it(auswahl)
 
     #restore old stdout
     sys.stdout.flush()
@@ -174,8 +189,3 @@ def do_it():
     sys.__stdout__ = sys.stdout = old_out
     sys.__stdin__ = sys.stdin = old_in
     sys.__stderr__ = sys.stderr = old_err
-    # print chosen string
-    print(orig_auswahl[index])
-
-
-do_it()
