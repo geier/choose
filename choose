@@ -3,7 +3,9 @@
 """simple chooser program
 
 reads lines from stdin, lets user choose one line in an urwid (ncurses like)
-interface, prints it to stdout and exits. Input will be aligned to tabs '\t'
+interface, prints it to stdout and exits. Input will be aligned to tabs '\t'.
+It does read and wirte directly into the currently active tty, thus working
+like this: `get_data | choose`
 """
 
 import urwid
