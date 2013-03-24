@@ -160,7 +160,7 @@ def do_it(auswahl):
     # set length of column[i] to length[i], either clip or extent
     auswahl = [[s[:lange].ljust(lange + 1) for s, lange in list(zip(wahl, laengen))] for wahl in auswahl]
 
-    auswahl = [u''.join(elemente) for elemente in auswahl]
+    auswahl = [''.join(elemente) for elemente in auswahl]
     index = select_entry(auswahl,
                          header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
 
