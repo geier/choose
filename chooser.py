@@ -45,6 +45,18 @@ def get_terminal_size():
     return int(con_props[1]), int(con_props[0])
 
 
+def get_terminal_size_wrapper():
+    """wrapper function, if we are on py3.3+ it will use the build in function,
+    otherwise our own"""
+    try:
+        # python3.3+
+        import shutil
+        termsize = shutil.get_terminal_size()
+        return termsize.columns, termsize.lines
+    except AttributeError:
+        return get_terminal_size()
+
+
 def select_entry(names, header_text=''):
     """interactive href selector (urwid based)
 
@@ -108,22 +120,15 @@ def select_entry(names, header_text=''):
 
 
 def do_it():
-    width, _ = get_terminal_size()
+    width, _ = get_terminal_size_wrapper()
 
     auswahl = sys.stdin.read()
 
-    # save old stdout and in
-    old_out = sys.__stdout__
-    old_in = sys.__stdin__
-    old_err = sys.__stderr__
-
-    sys.__stdout__ = sys.stdout = open('/dev/tty', 'wb')
-    sys.__stdin__ = sys.stdin = open('/dev/tty')
-    os.dup2(sys.stdin.fileno(), 0)
 
     def get_lengths(auswahl):
         """return max lengths of strings in 'columns' """
-        return map(max, zip(*[map(len, one) for one in auswahl]))
+        # list() for python3 compat.
+        return list(map(max, list(zip(*[map(len, one) for one in auswahl]))))
 
     # main work is done here
     auswahl = auswahl.split('\n')[:-1]  # last line is always empty
