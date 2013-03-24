@@ -1,8 +1,9 @@
 #!/usr/bin/env python
+# coding: utf-8
 """simple chooser program
 
-reads lines from stdin, lets user choose one line in an urwid (ncurses like
-interface), prints it to stdout and exits. Input will be aligned to tabs '\t'
+reads lines from stdin, lets user choose one line in an urwid (ncurses like)
+interface, prints it to stdout and exits. Input will be aligned to tabs '\t'
 """
 
 import urwid
@@ -155,7 +156,7 @@ def do_it():
 
     auswahl = [''.join(elemente) for elemente in auswahl]
     index = select_entry(auswahl,
-                         header_text='Who do You want to call today?')
+                         header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
 
     #restore old stdout
     sys.stdout.flush()
