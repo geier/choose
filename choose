@@ -144,8 +144,6 @@ def select_entry(names, header_text=''):
 def do_it(auswahl):
     width, _ = get_terminal_size_wrapper()
 
-
-
     def get_lengths(auswahl):
         """return max lengths of strings in 'columns' """
         # list() for python3 compat.
@@ -188,7 +186,7 @@ def do_it(auswahl):
     print(orig_auswahl[index])
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     auswahl = sys.stdin.read()
 
     # save old stdout and in
