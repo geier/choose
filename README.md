@@ -6,7 +6,7 @@ interface, then prints that line to stdout and exits. Input will be aligned to
 tabs '\t'.  After reading from stdin, in attaches itself directly to the
 currently active tty, thus it can work with piped input:
  
-  get_data.sh | **choose** other_script.sh
+  get_data.sh | **choose** | other_script.sh
 
 
 It has been tested on FreeBSD, Debian and Ubuntu in an utf-8 console.
