@@ -27,6 +27,7 @@ interface, prints it to stdout and exits. Input will be aligned to tabs '\t'.
 It does read and wirte directly into the currently active tty, thus working
 like this: `get_data | choose`
 """
+from __future__ import print_function
 
 import urwid
 import sys
@@ -182,8 +183,7 @@ def do_it(auswahl):
     index = select_entry(auswahl,
                          header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
 
-    # print chosen string
-    print(orig_auswahl[index])
+    return orig_auswahl[index]
 
 
 if __name__ == "__main__":
@@ -197,7 +197,8 @@ if __name__ == "__main__":
     sys.__stdin__ = sys.stdin = open('/dev/tty')
     os.dup2(sys.stdin.fileno(), 0)
 
-    do_it(auswahl)
+    auswahl = do_it(auswahl)
+    print(auswahl)
 
     #restore old stdout
     sys.stdout.flush()
