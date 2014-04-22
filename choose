@@ -142,52 +142,52 @@ def select_entry(names, header_text=''):
         return listbox.get_focus()[1]
 
 
-def do_it(auswahl):
+def do_it(choice):
     width, _ = get_terminal_size_wrapper()
 
-    def get_lengths(auswahl):
+    def get_lengths(choice):
         """return max lengths of strings in 'columns' """
         # list() for python3 compat.
-        return list(map(max, list(zip(*[map(len, one) for one in auswahl]))))
+        return list(map(max, list(zip(*[map(len, one) for one in choice]))))
 
     # main work is done here
-    auswahl = auswahl.split('\n')[:-1]  # last line is always empty
-    orig_auswahl = auswahl
-    auswahl = [one.split('\t') for one in auswahl]
+    choice = choice.split('\n')[:-1]  # last line is always empty
+    orig_choice = choice
+    choice = [one.split('\t') for one in choice]
 
     #make sure all have elements have the same number of elements
-    number_elements = max([len(one) for one in auswahl])
-    for ind, _ in enumerate(auswahl):
-        while len(auswahl[ind]) < number_elements:
-            auswahl[ind].append('')
+    number_elements = max([len(one) for one in choice])
+    for ind, _ in enumerate(choice):
+        while len(choice[ind]) < number_elements:
+            choice[ind].append('')
 
-    laengen = get_lengths(auswahl)
-    number_columns = len(laengen)
+    lengths = get_lengths(choice)
+    number_columns = len(lengths)
     number_splits = number_columns - 1
 
-    while sum(laengen) + number_splits > width:
-        missing = width - sum(laengen) - number_splits
+    while sum(lengths) + number_splits > width:
+        missing = width - sum(lengths) - number_splits
         number_offenders = 0
-        for lang in laengen:
-            if lang > width / number_columns + number_splits:
+        for length in lengths:
+            if length > width / number_columns + number_splits:
                 number_offenders = number_offenders + 1
-        for ind, lang in enumerate(laengen):
-            if lang > width / number_columns + number_splits:
-                laengen[ind] = laengen[ind] + missing / number_offenders
+        for ind, length in enumerate(lengths):
+            if length > width / number_columns + number_splits:
+                lengths[ind] = lengths[ind] + missing / number_offenders
                 break
 
     # set length of column[i] to length[i], either clip or extent
-    auswahl = [[s[:lange].ljust(lange + 1) for s, lange in list(zip(wahl, laengen))] for wahl in auswahl]
+    choice = [[s[:length].ljust(length + 1) for s, length in list(zip(wahl, lengths))] for wahl in choice]
 
-    auswahl = [''.join(elemente) for elemente in auswahl]
-    index = select_entry(auswahl,
+    choice = [''.join(elemente) for elemente in choice]
+    index = select_entry(choice,
                          header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
 
-    return orig_auswahl[index]
+    return orig_choice[index]
 
 
 if __name__ == "__main__":
-    auswahl = sys.stdin.read()
+    choice = sys.stdin.read()
 
     # save old stdout and in
     old_out = sys.__stdout__
@@ -197,8 +197,8 @@ if __name__ == "__main__":
     sys.__stdin__ = sys.stdin = open('/dev/tty')
     os.dup2(sys.stdin.fileno(), 0)
 
-    auswahl = do_it(auswahl)
-    print(auswahl)
+    choice = do_it(choice)
+    print(choice)
 
     #restore old stdout
     sys.stdout.flush()
