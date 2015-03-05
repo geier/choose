@@ -69,28 +69,33 @@ def select_entry(names, header_text=''):
         """Selectable Text, saving index"""
         def __init__(self, text):
             urwid.Text.__init__(self, text)
+            self.orig_text = text
+            self.selected = False
 
         @classmethod
         def selectable(cls):
             """needs to be implemented"""
             return True
 
-        @classmethod
-        def keypress(cls, _, key):
+        def keypress(self, _, key):
             """needs to be implemented"""
+            if key == 'enter':
+                raise Selected(self.orig_text)
             return key
 
     class Selected(Exception):
         """
         used for signalling that an item was chosen in urwid
         """
-        pass
+        def __init__(self, exit_token=None):
+            self.exit_token = exit_token
 
     if len(names) is 1:
         return names[0]
     if names == list():
         return None
     name_list = list()
+
     for one in names:
         name_list.append(SelText(one))
     palette = [('header', 'white', 'black'),
@@ -107,24 +112,18 @@ def select_entry(names, header_text=''):
         """used for urwid test
         to be removed
         """
-        if input == 'q':
+        if input in ['q', 'esc']:
             raise urwid.ExitMainLoop()
-        if input is 'enter':
-            listbox.get_focus()[0].original_widget
-            raise Selected()
 
-    loop = urwid.MainLoop(top, palette,
-                          unhandled_input=keystroke)
+    loop = urwid.MainLoop(top, palette, unhandled_input=keystroke)
     try:
         loop.run()
-    except Selected:
-        return listbox.get_focus()[1]
+    except Selected as error:
+        return error.exit_token
 
 
 def do_it(auswahl):
     width, _ = get_terminal_size_wrapper()
-
-
 
     def get_lengths(auswahl):
         """return max lengths of strings in 'columns' """
@@ -133,7 +132,6 @@ def do_it(auswahl):
 
     # main work is done here
     auswahl = auswahl.split('\n')[:-1]  # last line is always empty
-    orig_auswahl = auswahl
     auswahl = [one.split('\t') for one in auswahl]
 
     #make sure all have elements have the same number of elements
@@ -161,14 +159,15 @@ def do_it(auswahl):
     auswahl = [[s[:lange].ljust(lange + 1) for s, lange in list(zip(wahl, laengen))] for wahl in auswahl]
 
     auswahl = [''.join(elemente) for elemente in auswahl]
-    index = select_entry(auswahl,
-                         header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
+    out = select_entry(auswahl,
+                       header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
 
     # print chosen string
-    print(orig_auswahl[index])
+    if out is not None:
+        print(out)
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     auswahl = sys.stdin.read()
 
     # save old stdout and in
