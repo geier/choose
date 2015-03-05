@@ -90,6 +90,30 @@ def select_entry(names, header_text=''):
         def __init__(self, exit_token=None):
             self.exit_token = exit_token
 
+    class MyFrame(urwid.Frame):
+        def __init__(self, filterfun=None, *args, **kwargs):
+            self._filter = filterfun
+            super(MyFrame, self).__init__(*args, **kwargs)
+
+        def keypress(self, size, key):
+            if key not in ['enter', 'esc', 'down', 'up']:
+                out = self._footer.keypress([1], key=key)
+                self._filter(self.footer.text)
+                return out
+            else:
+                return super(MyFrame, self).keypress(size, key)
+
+    class MySimpleListWalker(urwid.SimpleListWalker):
+        original_content = None
+
+        def filter(self, string):
+            if self.original_content is None:
+                self.original_content = self.contents
+            for num, line in enumerate(self.contents):
+                text = line.original_widget.text
+                if string not in text.decode('utf-8'):
+                    self.contents.pop(num)
+
     if len(names) is 1:
         return names[0]
     if names == list():
@@ -100,13 +124,14 @@ def select_entry(names, header_text=''):
         name_list.append(SelText(one))
     palette = [('header', 'white', 'black'),
                ('reveal focus', 'black', 'dark cyan', 'standout'), ]
-    content = urwid.SimpleListWalker([
+    content = MySimpleListWalker([
         urwid.AttrMap(w, None, 'reveal focus') for w in name_list])
 
     listbox = urwid.ListBox(content)
     header = urwid.Text(header_text, wrap='clip')
     head = urwid.AttrMap(header, 'header')
-    top = urwid.Frame(listbox, head)
+    foot = urwid.Edit()
+    top = MyFrame(content.filter, listbox, head, footer=foot)
 
     def keystroke(input):
         """used for urwid test
