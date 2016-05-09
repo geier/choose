@@ -24,14 +24,16 @@
 
 reads lines from stdin, lets user choose one line in an urwid (ncurses like)
 interface, prints it to stdout and exits. Input will be aligned to tabs '\t'.
-It does read and wirte directly into the currently active tty, thus working
-like this: `get_data | choose`
+It does read and write directly into the currently active tty, thus working
+like this: `get_data | choose | process_data`
 """
 from __future__ import print_function
 
-import urwid
-import sys
 import os
+import re
+import sys
+
+import urwid
 
 
 def get_terminal_size():
@@ -105,35 +107,62 @@ def select_entry(names, header_text=''):
             return key
 
     class Selected(Exception):
-        """
-        used for signalling that an item was chosen in urwid
-        """
+        """used for signalling that an item was chosen in urwid"""
         def __init__(self, exit_token=None):
             self.exit_token = exit_token
 
     class MyFrame(urwid.Frame):
-        def __init__(self, filterfun=None, *args, **kwargs):
+        def __init__(self, filterfun=None, backtrackfun=None, *args, **kwargs):
             self._filter = filterfun
+            self._backtrack = backtrackfun
             super(MyFrame, self).__init__(*args, **kwargs)
 
         def keypress(self, size, key):
-            if key not in ['enter', 'esc', 'down', 'up']:
+            if key not in ['enter', 'esc', 'down', 'up', 'left', 'right', 'backspace', 'delete']:
                 out = self._footer.keypress([1], key=key)
                 self._filter(self.footer.text)
                 return out
+            elif key == 'backspace':
+                self._backtrack()
+                out = self._footer.keypress([1], key=key)
             else:
                 return super(MyFrame, self).keypress(size, key)
 
     class MySimpleListWalker(urwid.SimpleListWalker):
         original_content = None
+        _out = list()
 
-        def filter(self, string):
-            if self.original_content is None:
-                self.original_content = self.contents
-            for num, line in enumerate(self.contents):
-                text = line.original_widget.text
-                if string not in text.decode('utf-8'):
-                    self.contents.pop(num)
+        def filter_regex(self, string):
+            start, end = '', ''
+            self._out.append(list())
+            string = string.lower()
+            if len(string) and string[0] == '^':
+                string = string[1:]
+                start = '^'
+            if len(string) and string[-1] == '$':
+                string = string[:-1]
+                end = '$'
+            if string[0] in '\'"':
+                quote = string[0]
+                string = string[1:]
+            else:
+                quote = False
+
+            if quote and string and string[-1] == quote:
+                regex = start + '.*' + string[:-1] + '.*' + end
+            else:
+                regex = start + '.*'.join(string) + end
+
+            regex = re.compile(regex)
+            length = len(self.contents)
+            for num, line in enumerate(self.contents[::-1]):
+                text = line.original_widget.text.decode('utf-8').lower().strip()
+                if not regex.search(text):
+                    self._out[-1].append(self.contents.pop(length - num - 1))
+
+        def backtrack(self):
+            if len(self._out) and isinstance(self._out[-1], list):
+                self.contents.extend(self._out.pop())
 
     if len(names) is 1:
         return names[0]
@@ -143,16 +172,18 @@ def select_entry(names, header_text=''):
 
     for one in names:
         name_list.append(SelText(one))
-    palette = [('header', 'white', 'black'),
-               ('reveal focus', 'black', 'dark cyan', 'standout'), ]
-    content = MySimpleListWalker([
-        urwid.AttrMap(w, None, 'reveal focus') for w in name_list])
+    palette = [
+        ('header', 'white', 'black'),
+        ('reveal focus', 'black', 'dark cyan', 'standout'),
+    ]
+    content = MySimpleListWalker(
+        [urwid.AttrMap(w, None, 'reveal focus') for w in name_list])
 
     listbox = urwid.ListBox(content)
     header = urwid.Text(header_text, wrap='clip')
     head = urwid.AttrMap(header, 'header')
     foot = urwid.Edit()
-    top = MyFrame(content.filter, listbox, head, footer=foot)
+    top = MyFrame(content.filter_regex, content.backtrack, listbox, head, footer=foot)
 
     def keystroke(input):
         """used for urwid test
@@ -180,7 +211,7 @@ def do_it(choice):
     choice = choice.split('\n')[:-1]  # last line is always empty
     choice = [one.split('\t') for one in choice]
 
-    #make sure all have elements have the same number of elements
+    # make sure all have elements have the same number of elements
     number_elements = max([len(one) for one in choice])
     for ind, _ in enumerate(choice):
         while len(choice[ind]) < number_elements:
@@ -205,8 +236,11 @@ def do_it(choice):
     choice = [[s[:length].ljust(length + 1) for s, length in list(zip(wahl, lengths))] for wahl in choice]
 
     choice = [''.join(elemente) for elemente in choice]
-    out = select_entry(choice,
-                       header_text=u'Navigate by pressing ↑ and ↓, select by pressing Enter')
+    out = select_entry(
+        choice, header_text=(
+            u'Navigate by pressing ↑ and ↓, search (fuzzy) by entering letters, '
+            'select by pressing Enter')
+    )
     return out
 
 
