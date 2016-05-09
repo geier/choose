@@ -222,6 +222,7 @@ class StreamTo(object):
         sys.__stdout__ = sys.stdout = open(self._stdout, 'w')
         sys.__stdin__ = sys.stdin = open(self._stdin)
         os.dup2(sys.stdin.fileno(), 0)
+        os.dup2(sys.stdout.fileno(), 1)
 
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stdout.flush()
