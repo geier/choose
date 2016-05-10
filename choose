@@ -270,4 +270,4 @@ if __name__ == "__main__":
     with StreamTo():
         choice = do_it(choice)
     if choice is not None:
-        sys.stdout.write(choice + '\n')
+        sys.stderr.write(choice + '\n')
