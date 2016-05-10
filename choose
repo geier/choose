@@ -250,9 +250,8 @@ class StreamTo(object):
         self._stdin = stdin
 
     def __enter__(self):
-        self._oout = sys.stdout
-        self._oin = sys.stdin
-        self._oerr = sys.__stderr__
+        self.old_out = sys.stdout
+        self.old_in = sys.stdin
         sys.__stdout__ = sys.stdout = open(self._stdout, 'w')
         sys.__stdin__ = sys.stdin = open(self._stdin)
         os.dup2(sys.stdin.fileno(), 0)
@@ -260,13 +259,10 @@ class StreamTo(object):
 
     def __exit__(self, exc_type, exc_value, traceback):
         sys.stdout.flush()
-        sys.stderr.flush()
         sys.stdin.close()
         sys.stdout.close()
-        sys.stderr.close()
-        sys.__stdout__ = sys.stdout = self._oout
-        sys.__stdin__ = sys.stdin = self._oin
-        sys.__stderr__ = sys.stderr = self._oerr
+        sys.__stdout__ = sys.stdout = self.old_out
+        sys.__stdin__ = sys.stdin = self.old_in
 
 
 if __name__ == "__main__":
