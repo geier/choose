@@ -125,7 +125,7 @@ if __name__ == '__main__':
             if key in ['up', 'down']:
                 focus = adjust_focus(mydata, focus, key)
             elif key in ['\r']:
-                rprint = data[focus]
+                rprint = mydata[focus]
                 break
             elif key in ['\x7f']:  # backspace
                 search_term = search_term[:-1]
