@@ -116,7 +116,10 @@ if __name__ == '__main__':
             if last_search_term != search_term:
                 mydata = filter_fun(data, search_term)
                 last_search_term = search_term
-            lastline = '({}) Searching for: {}'.format(filters[filter_mode][1], search_term)
+            if search_term:
+                lastline = '({}) Searching for: {}'.format(filters[filter_mode][1], search_term)
+            else:
+                lastline = 'Start typeing for search, ctrl-t for switching search mode'
             render(mydata, width, height, focus, lastline=lastline)
             key = get_input()
             if key in ['up', 'down']:
@@ -129,7 +132,7 @@ if __name__ == '__main__':
             elif key in ['\x03']:  # ctrl-c
                 break
             elif key in ['\x14']:  # ctrl-t, bad-choice
-                filter_mode = filter_mode + 1 % len(filters)
+                filter_mode = (filter_mode + 1) % len(filters)
             elif key is not None:
                 search_term = search_term + key
     if rprint:
