@@ -51,31 +51,33 @@ def get_input():
     return ch
 
 
-def out(line, width, color='', newline=True):
+def out(line, width, color=''):
     line = line[:width].ljust(width)
     if color:
         line = color + line + RESET
-    if newline:
-        line = line + '\n'
     sys.stderr.write(line)
 
 
 def render(data, width, height, focus, lastline):
     framecolor = CTRL + '[44m' + CTRL + '[37m'
     highlight = CTRL + '[47m' + CTRL + '[34m'
+    print(CTRL + '[1;1H')
     out(firstline, width, color=framecolor)
     if focus + height - 2 > len(data):
         lower = max(0, len(data) - height)
     else:
         lower = focus
 
+    termno = 0
     for lineno in range(lower, lower + height - 2):
+        termno += 1
+        print(CTRL + '[{};1H'.format(termno))
         try:
             color = highlight if lineno == focus else ''
             out(data[lineno], width, color)
         except IndexError:
             out('', width)
-    out(lastline, width, color=framecolor, newline=False)
+    out(lastline, width, color=framecolor)
     sys.stderr.flush()
 
 
