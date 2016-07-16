@@ -33,12 +33,12 @@ firstline = 'Navigate with ↑ and ↓, `return` exits and prints currently sele
 
 class Console():
     def __enter__(self):
-        print(HIDE_CURSOR)
-        print(ALTERNATE_BUFFER_ON)
+        sys.stderr.write(HIDE_CURSOR)
+        sys.stderr.write(ALTERNATE_BUFFER_ON)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        print(SHOW_CURSOR)
-        print(ALTERNATE_BUFFER_OFF)
+        sys.stderr.write(SHOW_CURSOR)
+        sys.stderr.write(ALTERNATE_BUFFER_OFF)
 
 
 def get_data(filename):
@@ -72,22 +72,25 @@ def out(line, width, color=''):
 def render(data, width, height, focus, lastline):
     framecolor = CTRL + '[44m' + CTRL + '[37m'
     highlight = CTRL + '[47m' + CTRL + '[34m'
-    print(CTRL + '[1;1H')
+
+    sys.stderr.write(CTRL + '[1;1H')
     out(firstline, width, color=framecolor)
+
     if focus + height - 2 > len(data):
         lower = max(0, len(data) - height)
     else:
         lower = focus
 
-    termno = 0
+    termno = 2
     for lineno in range(lower, lower + height - 2):
-        termno += 1
-        print(CTRL + '[{};1H'.format(termno))
+        sys.stderr.write(CTRL + '[{};1H'.format(termno))
         try:
             color = highlight if lineno == focus else ''
             out(data[lineno], width, color)
         except IndexError:
             out('', width)
+        termno += 1
+    sys.stderr.write(CTRL + '[{};1H'.format(termno))
     out(lastline, width, color=framecolor)
     sys.stderr.flush()
 
