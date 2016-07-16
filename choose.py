@@ -13,11 +13,20 @@ ALTERNATE_BUFFER_OFF = CTRL + '[?47l' + CTRL + '8'
 SHOW_CURSOR = CTRL + '[?25h'
 HIDE_CURSOR = CTRL + '[?25l'
 
-KEYS = {
+CTRLKEYS = {
     '[A': 'up',
     '[B': 'down',
 }
 
+KEYS = {
+    '\x0e': 'ctrl n',
+    '\x10': 'ctrl p',
+}
+
+MAPPINGS = {
+    'ctrl n': 'down',
+    'ctrl p': 'up',
+}
 
 firstline = 'Navigate with ↑ and ↓, `return` exits and prints currently selected line'
 
@@ -44,8 +53,10 @@ def get_input():
     try:
         tty.setraw(sys.stdin.fileno())
         ch = sys.stdin.read(1)
-        if ch == '\x1b':
-            ch = KEYS.get(sys.stdin.read(2))
+        ch = KEYS.get(ch, ch)
+        ch = MAPPINGS.get(ch, ch)
+        if ch == CTRL:
+            ch = CTRLKEYS.get(sys.stdin.read(2))
     finally:
         termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
     return ch
