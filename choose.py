@@ -3,6 +3,7 @@ import shutil
 import sys
 import tty
 import termios
+import os
 
 CTRL = '\x1b'
 RESET = CTRL + '[0m'
@@ -33,12 +34,18 @@ firstline = 'Navigate with ↑ and ↓, `return` exits and prints currently sele
 
 class Console():
     def __enter__(self):
-        sys.stderr.write(HIDE_CURSOR)
-        sys.stderr.write(ALTERNATE_BUFFER_ON)
+        self.old_out = sys.stdout
+        self.old_in = sys.stdin
+        sys.__stdout__ = sys.stdout = open('/dev/tty', 'w')
+
+        sys.stdout.write(HIDE_CURSOR)
+        sys.stdout.write(ALTERNATE_BUFFER_ON)
 
     def __exit__(self, exc_type, exc_value, traceback):
-        sys.stderr.write(SHOW_CURSOR)
-        sys.stderr.write(ALTERNATE_BUFFER_OFF)
+        sys.stdout.write(SHOW_CURSOR)
+        sys.stdout.write(ALTERNATE_BUFFER_OFF)
+        sys.stdout.flush()
+        sys.__stdout__ = sys.stdout = self.old_out
 
 
 def get_data(filename):
@@ -66,14 +73,14 @@ def out(line, width, color=''):
     line = line[:width].ljust(width)
     if color:
         line = color + line + RESET
-    sys.stderr.write(line)
+    sys.stdout.write(line)
 
 
 def render(data, width, height, focus, lastline):
     framecolor = CTRL + '[44m' + CTRL + '[37m'
     highlight = CTRL + '[47m' + CTRL + '[34m'
 
-    sys.stderr.write(CTRL + '[1;1H')
+    sys.stdout.write(CTRL + '[1;1H')
     out(firstline, width, color=framecolor)
 
     if focus + height - 2 > len(data):
@@ -83,16 +90,16 @@ def render(data, width, height, focus, lastline):
 
     termno = 2
     for lineno in range(lower, lower + height - 2):
-        sys.stderr.write(CTRL + '[{};1H'.format(termno))
+        sys.stdout.write(CTRL + '[{};1H'.format(termno))
         try:
             color = highlight if lineno == focus else ''
             out(data[lineno], width, color)
         except IndexError:
             out('', width)
         termno += 1
-    sys.stderr.write(CTRL + '[{};1H'.format(termno))
+    sys.stdout.write(CTRL + '[{};1H'.format(termno))
     out(lastline, width, color=framecolor)
-    sys.stderr.flush()
+    sys.stdout.flush()
 
 
 def adjust_focus(data, focus, key):
