@@ -118,6 +118,8 @@ if __name__ == '__main__':
             if last_search_term != search_term:
                 mydata = filter_fun(data, search_term)
                 last_search_term = search_term
+                if focus > len(mydata):
+                    focus = len(mydata) - 1
             if search_term:
                 lastline = '({}) Searching for: {}'.format(filters[filter_mode][1], search_term)
             else:
