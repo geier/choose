@@ -101,7 +101,6 @@ def filter_regex(data, string):
 
 if __name__ == '__main__':
     data = get_data(sys.argv[1])[:]
-    width, height = shutil.get_terminal_size()
     with Console():
         focus = 0
         filter_mode = 0
@@ -114,6 +113,7 @@ if __name__ == '__main__':
         mydata = data
         rprint = False
         while True:
+            width, height = shutil.get_terminal_size()
             filter_fun = filters[filter_mode][0]
             if last_search_term != search_term:
                 mydata = filter_fun(data, search_term)
