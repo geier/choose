@@ -120,7 +120,7 @@ if __name__ == '__main__':
             render(mydata, width, height, focus, lastline=lastline)
             key = get_input()
             if key in ['up', 'down']:
-                focus = adjust_focus(data, focus, key)
+                focus = adjust_focus(mydata, focus, key)
             elif key in ['\r']:
                 rprint = data[focus]
                 break
