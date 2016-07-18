@@ -78,7 +78,7 @@ def render(data, width, height, focus, lastline):
     out(firstline, width, color=framecolor)
 
     if focus + height - 2 > len(data):
-        lower = max(0, len(data) - height)
+        lower = max(0, len(data) - height + 2)
     else:
         lower = focus
 
