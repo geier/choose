@@ -37,6 +37,7 @@ class Console():
         self.old_out = sys.stdout
         self.old_in = sys.stdin
         sys.__stdout__ = sys.stdout = open('/dev/tty', 'w')
+        sys.__stdin__ = sys.stdin = open('/dev/tty', 'r')
 
         sys.stdout.write(HIDE_CURSOR)
         sys.stdout.write(ALTERNATE_BUFFER_ON)
@@ -46,12 +47,7 @@ class Console():
         sys.stdout.write(ALTERNATE_BUFFER_OFF)
         sys.stdout.flush()
         sys.__stdout__ = sys.stdout = self.old_out
-
-
-def get_data(filename):
-    with open(filename) as f:
-        data = f.readlines()
-    return [line.strip('\n') for line in data]
+        sys.__stdin__ = sys.stdin = self.old_in
 
 
 def get_input():
@@ -121,7 +117,7 @@ def filter_regex(data, string):
     return [line for line in data if regex.search(line)]
 
 if __name__ == '__main__':
-    data = get_data(sys.argv[1])[:]
+    data = [line.strip('\n') for line in sys.stdin.readlines()]
     with Console():
         focus = 0
         filter_mode = 0
