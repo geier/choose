@@ -38,6 +38,9 @@ class Console():
         self.old_in = sys.stdin
         sys.__stdout__ = sys.stdout = open('/dev/tty', 'w')
         sys.__stdin__ = sys.stdin = open('/dev/tty', 'r')
+        self.fd_stdin = sys.stdin.fileno()
+        self.old_settings = termios.tcgetattr(self.fd_stdin)
+        tty.setraw(self.fd_stdin)
 
         sys.stdout.write(HIDE_CURSOR)
         sys.stdout.write(ALTERNATE_BUFFER_ON)
@@ -46,22 +49,17 @@ class Console():
         sys.stdout.write(SHOW_CURSOR)
         sys.stdout.write(ALTERNATE_BUFFER_OFF)
         sys.stdout.flush()
+        termios.tcsetattr(self.fd_stdin, termios.TCSADRAIN, self.old_settings)
         sys.__stdout__ = sys.stdout = self.old_out
         sys.__stdin__ = sys.stdin = self.old_in
 
 
 def get_input():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(sys.stdin.fileno())
-        ch = sys.stdin.read(1)
-        ch = KEYS.get(ch, ch)
-        ch = MAPPINGS.get(ch, ch)
-        if ch == CTRL:
-            ch = CTRLKEYS.get(sys.stdin.read(2))
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    ch = sys.stdin.read(1)
+    ch = KEYS.get(ch, ch)
+    ch = MAPPINGS.get(ch, ch)
+    if ch == CTRL:
+        ch = CTRLKEYS.get(sys.stdin.read(2))
     return ch
 
 
