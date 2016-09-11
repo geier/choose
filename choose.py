@@ -79,16 +79,14 @@ def render(data, width, height, focus, lastline):
     else:
         lower = focus
 
-    termno = 2
-    for lineno in range(lower, lower + height - 2):
-        sys.stdout.write(ESC + '[{};1H'.format(termno))
+    for term_line_no, data_line_no in enumerate(range(lower, lower + height - 2), 2):
+        sys.stdout.write(ESC + '[{};1H'.format(term_line_no))
         try:
-            color = highlight if lineno == focus else ''
-            out(data[lineno], width, color)
+            color = highlight if data_line_no == focus else ''
+            out(data[data_line_no], width, color)
         except IndexError:
             out('', width)
-        termno += 1
-    sys.stdout.write(ESC + '[{};1H'.format(termno))
+    sys.stdout.write(ESC + '[{};1H'.format(term_line_no))
     out(lastline, width, color=framecolor)
     sys.stdout.flush()
 
