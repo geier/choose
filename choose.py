@@ -132,7 +132,7 @@ if __name__ == '__main__':
             if search_term:
                 lastline = '({}) Searching for: {}'.format(filters[filter_mode][1], search_term)
             else:
-                lastline = 'Start typeing for search, ctrl-t for switching search mode'
+                lastline = 'Start typing for search, ctrl-t for switching search mode'
             render(mydata, width, height, focus, lastline=lastline)
             key = get_input()
             if key in ['up', 'down']:
