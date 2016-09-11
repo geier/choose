@@ -21,8 +21,9 @@ ESCKEYS = {
 
 MAPPINGS = {
     '\x0e': 'down',  # ctrl+n
-    '\x10': 'up',    #ctrl+p
-    '\x04': 'screen down', # ctrl+d
+    '\x10': 'up',  # ctrl+p
+    '\x04': 'screen down',  # ctrl+d
+    '\x15': 'screen up',  # ctrl+u
 }
 
 
