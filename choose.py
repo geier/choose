@@ -5,29 +5,26 @@ import tty
 import termios
 import os
 
-CTRL = '\x1b'
-RESET = CTRL + '[0m'
-COLOR = CTRL + '[31m'
-HOME = CTRL + '[H'
-ALTERNATE_BUFFER_ON = CTRL + '7' + CTRL + '[?47h'
-ALTERNATE_BUFFER_OFF = CTRL + '[?47l' + CTRL + '8'
-SHOW_CURSOR = CTRL + '[?25h'
-HIDE_CURSOR = CTRL + '[?25l'
+ESC = '\x1b'
+RESET = ESC + '[0m'
+COLOR = ESC + '[31m'
+HOME = ESC + '[H'
+ALTERNATE_BUFFER_ON = ESC + '7' + ESC + '[?47h'
+ALTERNATE_BUFFER_OFF = ESC + '[?47l' + ESC + '8'
+SHOW_CURSOR = ESC + '[?25h'
+HIDE_CURSOR = ESC + '[?25l'
 
-CTRLKEYS = {
+ESCKEYS = {
     '[A': 'up',
     '[B': 'down',
 }
 
-KEYS = {
-    '\x0e': 'ctrl n',
-    '\x10': 'ctrl p',
+MAPPINGS = {
+    '\x0e': 'down',  # ctrl+n
+    '\x10': 'up',    #ctrl+p
+    '\x04': 'screen down', # ctrl+d
 }
 
-MAPPINGS = {
-    'ctrl n': 'down',
-    'ctrl p': 'up',
-}
 
 firstline = 'Navigate with ↑ and ↓, `return` exits and prints currently selected line'
 
@@ -56,10 +53,9 @@ class Console():
 
 def get_input():
     ch = sys.stdin.read(1)
-    ch = KEYS.get(ch, ch)
     ch = MAPPINGS.get(ch, ch)
-    if ch == CTRL:
-        ch = CTRLKEYS.get(sys.stdin.read(2))
+    if ch == ESC:
+        ch = ESCKEYS.get(sys.stdin.read(2))
     return ch
 
 
@@ -71,10 +67,10 @@ def out(line, width, color=''):
 
 
 def render(data, width, height, focus, lastline):
-    framecolor = CTRL + '[44m' + CTRL + '[37m'
-    highlight = CTRL + '[47m' + CTRL + '[34m'
+    framecolor = ESC + '[44m' + ESC + '[37m'
+    highlight = ESC + '[47m' + ESC + '[34m'
 
-    sys.stdout.write(CTRL + '[1;1H')
+    sys.stdout.write(ESC + '[1;1H')
     out(firstline, width, color=framecolor)
 
     if focus + height - 2 > len(data):
@@ -84,14 +80,14 @@ def render(data, width, height, focus, lastline):
 
     termno = 2
     for lineno in range(lower, lower + height - 2):
-        sys.stdout.write(CTRL + '[{};1H'.format(termno))
+        sys.stdout.write(ESC + '[{};1H'.format(termno))
         try:
             color = highlight if lineno == focus else ''
             out(data[lineno], width, color)
         except IndexError:
             out('', width)
         termno += 1
-    sys.stdout.write(CTRL + '[{};1H'.format(termno))
+    sys.stdout.write(ESC + '[{};1H'.format(termno))
     out(lastline, width, color=framecolor)
     sys.stdout.flush()
 
