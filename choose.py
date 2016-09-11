@@ -37,7 +37,7 @@ class Console():
         sys.__stdin__ = sys.stdin = open('/dev/tty', 'r')
         self.fd_stdin = sys.stdin.fileno()
         self.old_settings = termios.tcgetattr(self.fd_stdin)
-        tty.setraw(self.fd_stdin)
+        tty.setcbreak(self.fd_stdin)
 
         sys.stdout.write(HIDE_CURSOR)
         sys.stdout.write(ALTERNATE_BUFFER_ON)
