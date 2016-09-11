@@ -112,18 +112,15 @@ def filter_regex(data, string):
     return [line for line in data if regex.search(line)]
 
 if __name__ == '__main__':
-    data = [line.strip('\n') for line in sys.stdin.readlines()]
+    mydata = data = [line.strip('\n') for line in sys.stdin.readlines()]
     with Console():
-        focus = 0
-        filter_mode = 0
+        focus, filter_mode = 0, 0
         filters = [
             (filter_fuzzy, 'fuzzy'),
             (filter_regex, 'regex'),
         ]
 
         search_term, last_search_term = '', ''
-        mydata = data
-        rprint = False
         while True:
             width, height = shutil.get_terminal_size()
             filter_fun = filters[filter_mode][0]
@@ -151,6 +148,5 @@ if __name__ == '__main__':
                 filter_mode = (filter_mode + 1) % len(filters)
             elif key is not None:
                 search_term = search_term + key
-    if rprint:
-        print(rprint)
+    print(locals().get('rprint', ''))
     sys.exit(0)
