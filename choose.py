@@ -107,6 +107,11 @@ def filter_fuzzy(data, string):
     return [line for line in data if regex.search(line)]
 
 
+def filter_substring(data, string):
+    regex = re.compile('.*{}.*'.format(string), re.I)
+    return [line for line in data if regex.search(line)]
+
+
 def filter_regex(data, string):
     regex = re.compile(string)
     return [line for line in data if regex.search(line)]
@@ -128,6 +133,7 @@ if __name__ == '__main__':
         focus, filter_mode = 0, 0
         filters = [
             (filter_fuzzy, 'fuzzy'),
+            (filter_substring, 'substring'),
             (filter_regex, 'regex'),
         ]
 
