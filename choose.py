@@ -89,7 +89,7 @@ def render(data, width, height, focus, lastline):
     else:
         lower = focus
 
-    for term_line_no, data_line_no in enumerate(range(lower, lower + height - 2), 2):
+    for term_line_no, data_line_no in enumerate(range(lower, lower + height - 1), 2):
         sys.stdout.write(ESC + '[{};1H'.format(term_line_no))
         try:
             color = highlight if data_line_no == focus else ''
