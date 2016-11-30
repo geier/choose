@@ -137,13 +137,15 @@ if __name__ == '__main__':
             (filter_regex, 'regex'),
         ]
 
-        search_term, last_search_term = '', ''
+        search_term, old_search_term = '', ''
+        old_filter_mode = None
         while True:
             width, height = shutil.get_terminal_size()
             filter_fun = filters[filter_mode][0]
-            if last_search_term != search_term:
+            if old_search_term != search_term or old_filter_mode != filter_mode:
                 mydata = filter_fun(data, search_term)
-                last_search_term = search_term
+                old_search_term = search_term
+                old_filter_mode = filter_mode
                 if focus > len(mydata):
                     focus = len(mydata) - 1
             if search_term:
@@ -165,6 +167,7 @@ if __name__ == '__main__':
             elif key in ['\x03']:  # ctrl-c
                 break
             elif key in ['\x14']:  # ctrl-t, bad-choice
+                old_filter_mode = filter_mode
                 filter_mode = (filter_mode + 1) % len(filters)
             elif key is not None:
                 search_term = search_term + key
