@@ -124,6 +124,7 @@ def filter_regex(data, string):
     regex = re.compile(string)
     return [line for line in data if regex.search(line)]
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Make choices on the command line.')
     parser.add_argument(
