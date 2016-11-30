@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# encoding: utf-8
 import argparse
 import re
 import subprocess
@@ -6,6 +7,12 @@ import shutil
 import sys
 import tty
 import termios
+
+
+if sys.version_info.major < 3:
+    print('This program is not compatible with python 2. Sorry')
+    sys.exit(99)
+
 
 ESC = '\x1b'
 RESET = ESC + '[0m'
