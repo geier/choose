@@ -1,9 +1,10 @@
+import argparse
 import re
+import subprocess
 import shutil
 import sys
 import tty
 import termios
-import os
 
 ESC = '\x1b'
 RESET = ESC + '[0m'
@@ -110,6 +111,17 @@ def filter_regex(data, string):
     return [line for line in data if regex.search(line)]
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser('Make choices on the command line.')
+    parser.add_argument(
+        '-e', '--execute',
+        help=(
+            'execute EXECUTE in the background when pressing enter, '
+            '{} will be replaced by the selected string. '
+            'Example: --execute "zathura {}"'
+        )
+    )
+    args = parser.parse_args()
+
     mydata = data = [line.strip('\n') for line in sys.stdin.readlines()]
     with Console():
         focus, filter_mode = 0, 0
@@ -136,8 +148,11 @@ if __name__ == '__main__':
             if key in ['up', 'down']:
                 focus = adjust_focus(mydata, focus, key)
             elif key in ['\r', '\n']:
-                rprint = mydata[focus]
-                break
+                result = mydata[focus]
+                if args.execute:
+                    subprocess.Popen(args.execute.format(result).split(' '))
+                else:
+                    break
             elif key in ['\x7f']:  # backspace
                 search_term = search_term[:-1]
             elif key in ['\x03']:  # ctrl-c
@@ -146,5 +161,5 @@ if __name__ == '__main__':
                 filter_mode = (filter_mode + 1) % len(filters)
             elif key is not None:
                 search_term = search_term + key
-    print(locals().get('rprint', ''))
+    print(locals().get('result', ''))
     sys.exit(0)
