@@ -64,6 +64,7 @@ class Console():
 def get_input():
     ch = sys.stdin.read(1)
     ch = MAPPINGS.get(ch, ch)
+    # TODO use select to check if there is another character entered
     if ch == ESC:
         ch = ESCKEYS.get(sys.stdin.read(2))
     return ch
