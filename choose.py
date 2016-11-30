@@ -111,7 +111,7 @@ def adjust_focus(data, focus, key):
 
 
 def filter_fuzzy(data, string):
-    regex = re.compile('.*'.join(string), re.I)
+    regex = re.compile('.*'.join(string).replace('\\', '\\\\'), re.I)
     return [line for line in data if regex.search(line)]
 
 
@@ -152,7 +152,10 @@ if __name__ == '__main__':
             width, height = shutil.get_terminal_size()
             filter_fun = filters[filter_mode][0]
             if old_search_term != search_term or old_filter_mode != filter_mode:
-                mydata = filter_fun(data, search_term)
+                try:
+                    mydata = filter_fun(data, search_term)
+                except re.error:
+                    pass
                 old_search_term = search_term
                 old_filter_mode = filter_mode
                 if focus > len(mydata):
