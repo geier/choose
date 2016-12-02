@@ -28,6 +28,7 @@ import shutil
 import sys
 import tty
 import termios
+import os
 
 
 if sys.version_info.major < 3:
@@ -192,7 +193,10 @@ if __name__ == '__main__':
             elif key in ['\r', '\n']:
                 result = mydata[focus]
                 if args.execute:
-                    subprocess.Popen(args.execute.format(result).split(' '))
+                    subprocess.Popen(
+                        args.execute.format(result).split(' '),
+                        preexec_fn=os.setpgrp,
+                    )
                 else:
                     break
             elif key in ['\x7f']:  # backspace
