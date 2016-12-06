@@ -138,6 +138,7 @@ def filter_fuzzy(data, string):
 
 
 def filter_substring(data, string):
+    string = '.*'.join(string.split())
     regex = re.compile('.*{}.*'.format(string), re.I)
     return [line for line in data if regex.search(line)]
 
