@@ -195,7 +195,7 @@ if __name__ == '__main__':
                 result = mydata[focus]
                 if args.execute:
                     subprocess.Popen(
-                        args.execute.format(result).split(' '),
+                        [part.format(result) for part in args.execute.split()],
                         preexec_fn=os.setpgrp,
                     )
                 else:
